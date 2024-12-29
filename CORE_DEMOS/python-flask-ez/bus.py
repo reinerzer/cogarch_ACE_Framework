@@ -1,7 +1,6 @@
 from flask import Flask, request
 import yaml
 import time
-import os
 import glob
 
 
@@ -40,4 +39,4 @@ def get_messages():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=900, debug=True)
+    app.run(host='0.0.0.0', port=8989, debug=True)

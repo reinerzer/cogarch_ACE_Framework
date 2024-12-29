@@ -1,12 +1,10 @@
 import requests
 import json
-import re
 import openai
-from time import time, sleep
+from time import sleep
 from datetime import datetime
 from halo import Halo
 import textwrap
-import yaml
 
 
 ###     file operations
@@ -28,7 +26,7 @@ def open_file(filepath):
 
 
 def send_message(bus, layer, message):
-    url = 'http://127.0.0.1:900/message'
+    url = 'http://127.0.0.1:8989/message'
     headers = {'Content-Type': 'application/json'}
     data = {'bus': bus, 'layer': layer, 'message': message}
     response = requests.post(url, headers=headers, data=json.dumps(data))
@@ -40,7 +38,7 @@ def send_message(bus, layer, message):
 
 
 def get_messages(bus, layer):
-    url = f'http://127.0.0.1:900/message?bus={bus}&layer={layer}'
+    url = f'http://127.0.0.1:8989/message?bus={bus}&layer={layer}'
     response = requests.get(url)
     if response.status_code == 200:
         messages = response.json()['messages']
@@ -63,17 +61,20 @@ def format_messages(messages):
     
     
 
-def chatbot(conversation, model="gpt-4", temperature=0, max_tokens=2000):
+def chatbot(conversation, model="gpt-4o", temperature=0, max_tokens=2000):
     try:
         spinner = Halo(text='Thinking...', spinner='dots')
         spinner.start()
         
-        response = openai.ChatCompletion.create(model=model, messages=conversation, temperature=temperature, max_tokens=max_tokens)
-        text = response['choices'][0]['message']['content'].strip()
+        # response = openai.ChatCompletion.create(model=model, messages=conversation, temperature=temperature, max_tokens=max_tokens)
+        client = openai.OpenAI(api_key=open_file('key_openai.txt').strip())
+        response = client.chat.completions.create(model=model, temperature=temperature, messages=conversation)
+
+        text = response.choices[0].message.content.strip()
 
         spinner.stop()
         
-        return text, response['usage']['total_tokens']
+        return text, response.usage.total_tokens
     except Exception as oops:
         print(f'\n\nError communicating with OpenAI: "{oops}"')
         sleep(5)
