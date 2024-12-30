@@ -1,7 +1,10 @@
+import threading
+
 from flask import Flask, request
 import yaml
 import time
 import glob
+import layer1, layer2, layer3, layer4, layer5
 
 
 app = Flask(__name__)
@@ -39,4 +42,10 @@ def get_messages():
 
 
 if __name__ == '__main__':
+    layers = [layer1, layer2, layer3, layer4, layer5]
+    for layer in layers:
+        # launch each layer in a separate thread
+        threading.Thread(target=layer.launch).start()
+
     app.run(host='0.0.0.0', port=8989, debug=True)
+
